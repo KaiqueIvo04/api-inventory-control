@@ -1,0 +1,30 @@
+### List Products
+GET http://localhost:3000/products
+
+### Create product
+POST http://localhost:3000/products
+Content-Type: application/json
+
+{
+    "name": "Batom",
+    "description": "Maquiagem para os lábios",
+    "category": "Maquiagem",
+    "supplier_id": "6912737ffb534981300b1d7c",
+    "cost": 20,
+    "price": 25,
+    "inventory_quantity": 5
+}
+
+### Update Product
+PATCH http://localhost:3000/products/prod_vZIePqDfihhiikV3kaR4b
+Content-Type: application/json
+
+{
+    "inventory_quantity": 3
+}
+
+### Get Product by Id
+GET http://localhost:3000/products/prod_vZIePqDfihhiikV3kaR4b
+
+### Delete Product
+DELETE http://localhost:3000/products/prod_vZIePqDfihhiikV3kaR4b
