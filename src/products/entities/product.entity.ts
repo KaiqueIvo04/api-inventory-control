@@ -1,6 +1,6 @@
 const { nanoid } = require("nanoid")
-import { Optional } from "@nestjs/common";
-import { BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import { Supplier } from "src/suppliers/entities/supplier.entity";
+import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
 
 @Entity('Products')
 export class Product {
@@ -11,14 +11,14 @@ export class Product {
     @Column()
     name: string;
 
-    @Column()
+    @Column({ type: 'text' })
     description: string;
 
     @Column()
     category: string;
 
-    @Column()
-    supplier_id: string;
+    @ManyToOne(() => Supplier, { onDelete: 'SET NULL', nullable: true })
+    supplier: Supplier;
 
     @Column()
     cost: number;
