@@ -1,13 +1,10 @@
-import { IsOptional, IsString } from "class-validator"
+import { IsOptional, IsString, MaxLength } from "class-validator"
 
 export class CreateSupplierDto {
 
     @IsString()
-    id: string
-
-    @IsString()
     name: string;
-    
+
     @IsOptional()
     @IsString()
     cnpj: string
@@ -22,5 +19,6 @@ export class CreateSupplierDto {
 
     @IsOptional()
     @IsString()
+    @MaxLength(300)
     address: string
 }

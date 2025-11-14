@@ -1,4 +1,4 @@
-import { IsNumber, IsOptional, IsString } from "class-validator";
+import { IsNumber, IsOptional, IsString, MaxLength } from "class-validator";
 
 export class CreateProductDto {
 
@@ -6,6 +6,7 @@ export class CreateProductDto {
     name: string;
 
     @IsString()
+    @MaxLength(1000)
     description: string;
 
     @IsString()

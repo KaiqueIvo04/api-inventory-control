@@ -1,6 +1,6 @@
 const { nanoid } = require("nanoid")
 import { Supplier } from "src/suppliers/entities/supplier.entity";
-import { BeforeInsert, Column, Entity, ManyToOne, PrimaryColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity('Products')
 export class Product {
@@ -18,7 +18,11 @@ export class Product {
     category: string;
 
     @ManyToOne(() => Supplier, { onDelete: 'SET NULL', nullable: true })
+    @JoinColumn({ name: 'supplier_id' })
     supplier: Supplier;
+
+    @Column({ nullable: true })
+    supplier_id: string;
 
     @Column()
     cost: number;
@@ -28,6 +32,13 @@ export class Product {
 
     @Column()
     inventory_quantity: number;
+
+    // @CreateDateColumn({ type: 'timestamptz' })
+    // created_at: Date;
+
+    // @UpdateDateColumn({ type: 'timestamptz' })
+    // updated_at: Date;
+
 
     @BeforeInsert()
     generateId() {

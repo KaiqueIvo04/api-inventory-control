@@ -1,13 +1,14 @@
-import { Inject, Injectable } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Repository } from 'typeorm';
 import { Supplier } from './entities/supplier.entity';
+import { InjectRepository } from '@nestjs/typeorm';
 
 @Injectable()
 export class SuppliersService {
   constructor(
-    @Inject(Supplier) private readonly supplierRepository: Repository<Supplier>
+    @InjectRepository(Supplier) private readonly supplierRepository: Repository<Supplier>
   ) { }
 
   create(dto: CreateSupplierDto) {
