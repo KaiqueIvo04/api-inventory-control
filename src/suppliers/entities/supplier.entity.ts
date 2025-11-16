@@ -22,11 +22,11 @@ export class Supplier {
     @Column({ type: 'text', nullable: true })
     address: string
 
-    // @CreateDateColumn({ type: 'timestamptz' })
-    // created_at: Date;
+    @CreateDateColumn()
+    created_at: Date;
 
-    // @UpdateDateColumn({ type: 'timestamptz' })
-    // updated_at: Date;
+    @UpdateDateColumn()
+    updated_at: Date;
 
     @BeforeInsert()
     generateId() {

@@ -1,4 +1,4 @@
-const { nanoid } = require("nanoid")
+import { nanoid } from "nanoid";
 import { Supplier } from "src/suppliers/entities/supplier.entity";
 import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
@@ -33,12 +33,11 @@ export class Product {
     @Column()
     inventory_quantity: number;
 
-    // @CreateDateColumn({ type: 'timestamptz' })
-    // created_at: Date;
+    @CreateDateColumn()
+    created_at: Date;
 
-    // @UpdateDateColumn({ type: 'timestamptz' })
-    // updated_at: Date;
-
+    @UpdateDateColumn()
+    updated_at: Date;
 
     @BeforeInsert()
     generateId() {

@@ -1,18 +1,20 @@
 import { nanoid } from "nanoid";
 import { Product } from "src/products/entities/product.entity";
 import { BeforeInsert, Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, PrimaryColumn, UpdateDateColumn } from "typeorm";
-
-export enum MovementType {
-    BUY = 'buy',
-    SELL = 'sell',
-    ADJUST = 'adjust'
-}
+import { Sale } from "./sale.entity";
 
 @Entity()
-export class InventoryMovement {
+export class ItemOfSale {
 
     @PrimaryColumn()
     id: string;
+
+    @ManyToOne(() => Sale, { onDelete: 'SET NULL' })
+    @JoinColumn({ name: 'sale_id' })
+    sale: Sale;
+
+    @Column()
+    sale_id: string;
 
     @ManyToOne(() => Product, { onDelete: 'SET NULL' })
     @JoinColumn({ name: 'product_id' })
@@ -20,18 +22,17 @@ export class InventoryMovement {
 
     @Column()
     product_id: string;
-
-    @Column({ enum: MovementType })
-    type: MovementType;
+    
+    // Armazena informações do produto no momento da venda
+    // (caso o produto seja alterado depois)
+    @Column({ nullable: true })
+    product_name_snapshot?: string;
 
     @Column()
     quantity: number;
 
-    @Column({ type: 'date' })
-    date_movement: Date;
-
-    @Column({ type: 'text', nullable: true })
-    observation: string;
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    unit_price: number;
 
     @CreateDateColumn()
     created_at: Date;
@@ -41,7 +42,6 @@ export class InventoryMovement {
 
     @BeforeInsert()
     generateId() {
-        this.id = `invmov_${nanoid()}`
+        this.id = `isal_${nanoid()}`
     }
 }
-
