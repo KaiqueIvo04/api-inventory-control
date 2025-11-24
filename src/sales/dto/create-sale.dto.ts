@@ -4,7 +4,6 @@ import { Type } from "class-transformer";
 
 // DTO para cada item da venda
 export class CreateItemOfSaleDto {
-
     @IsString()
     @IsNotEmpty()
     product_id: string;
@@ -13,14 +12,13 @@ export class CreateItemOfSaleDto {
     @Min(1, { message: 'The minimum quantity of product is 1!' })
     quantity: number;
 
-    @IsNumber()
-    @IsPositive({ message: 'Unit price of product must be positive!' })
-    unit_price: number;
+    // @IsNumber()
+    // @IsPositive({ message: 'Unit price of product must be positive!' })
+    // unit_price: number;
 }
 
 // DTO principal para criar a venda
 export class CreateSaleDto {
-
   @IsString()
   @IsNotEmpty()
   name_client: string;

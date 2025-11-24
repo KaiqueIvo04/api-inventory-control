@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { BeforeInsert, Column, CreateDateColumn, DeleteDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, OneToMany, PrimaryColumn, UpdateDateColumn } from "typeorm";
 import { ItemOfSale } from "./item_of_sale.entity";
 
 export enum PaymentMethod {
@@ -14,8 +14,8 @@ export class Sale {
     @PrimaryColumn()
     id: string;
 
-    @OneToMany(() => ItemOfSale, (item) => item.sale, { cascade: true })
-    items: ItemOfSale[]; // 👈 Adicione isso!
+    @OneToMany(() => ItemOfSale, (item) => item.sale)
+    items: ItemOfSale[];
 
     @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
     date_sale: Date;
@@ -28,6 +28,9 @@ export class Sale {
 
     @Column({ nullable: true })
     name_client: string;
+
+    @Column()
+    discount: number;
 
     @CreateDateColumn()
     created_at: Date;

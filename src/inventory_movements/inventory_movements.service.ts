@@ -1,14 +1,17 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInventoryMovementDto } from './dto/create-inventory_movement.dto';
 import { UpdateInventoryMovementDto } from './dto/update-inventory_movement.dto';
 import { InjectRepository } from '@nestjs/typeorm';
 import { InventoryMovement } from './entities/inventory_movement.entity';
 import { Repository } from 'typeorm';
+import { Product } from 'src/products/entities/product.entity';
+import { ProductsService } from 'src/products/products.service';
 
 @Injectable()
 export class InventoryMovementsService {
   constructor(
-    @InjectRepository(InventoryMovement) private readonly movementRepository: Repository<InventoryMovement>
+    @InjectRepository(InventoryMovement) private readonly movementRepository: Repository<InventoryMovement>,
+    @Inject() private readonly productService: ProductsService
   ) { }
 
   create(dto: CreateInventoryMovementDto) {
@@ -37,4 +40,28 @@ export class InventoryMovementsService {
     if (!movement) return null;
     return this.movementRepository.remove(movement);
   }
+
+  // HELPERS
+  private async updateProductInventory(
+    productId: string,
+    quantityChange: number,
+    manager: any
+  ) {
+    const product = await this.productService.findOne(productId);
+
+    if (!product) {
+      throw new NotFoundException(`Update inventory: product with id ${productId} not found!`);
+    }
+
+    product.inventory_quantity += quantityChange;
+
+    if (product.inventory_quantity < 0) {
+      throw new BadRequestException(
+        `Insufficient inventory quantities for the product ${product.name}!`
+      );
+    }
+
+    await manager.save(Product, product);
+  }
+
 }

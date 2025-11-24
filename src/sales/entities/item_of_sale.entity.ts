@@ -9,7 +9,7 @@ export class ItemOfSale {
     @PrimaryColumn()
     id: string;
 
-    @ManyToOne(() => Sale, { onDelete: 'SET NULL' })
+    @ManyToOne(() => Sale, { onDelete: 'CASCADE' })
     @JoinColumn({ name: 'sale_id' })
     sale: Sale;
 
