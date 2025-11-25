@@ -6,13 +6,15 @@ import { Admin } from './entities/admin.entity';
 import { randomBytes, scrypt as _script } from 'crypto';
 import { promisify } from 'util';
 import { CreateAdminDto } from './dto/create-admin.dto';
+import { JwtService } from '@nestjs/jwt';
 
 const scrypt = promisify(_script);
 
 @Injectable()
 export class AuthService {
     constructor(
-        @InjectRepository(Admin) private readonly adminRepository: Repository<Admin>
+        @InjectRepository(Admin) private readonly adminRepository: Repository<Admin>,
+        private readonly jwtService: JwtService
     ) { }
 
     async signup(dto: CreateAdminDto) {
@@ -46,7 +48,8 @@ export class AuthService {
 
         if (compareHash.toString('hex') !== hash) throw new UnauthorizedException("Invalid credentials!");
         
-        const { password, ...result } = user;
-        return result
+        const payload = { username: user.email, sub: user.id }
+
+        return { access_token: this.jwtService.sign(payload) };
     }
 }

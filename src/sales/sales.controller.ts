@@ -1,23 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, UseGuards } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
+import { JwtAuthGuard } from 'src/auth/jwt-auth.guard';
 
 @Controller('sales')
 export class SalesController {
   constructor(private readonly salesService: SalesService) { }
 
   @Post()
-  create(@Body() createSaleDto: CreateSaleDto) {
+  @UseGuards(JwtAuthGuard)
+  create(
+    @Body() createSaleDto: CreateSaleDto,
+    // @CurrentUser() user: CurrentUserDto // Obter usuário autenticado da requisição
+  ) {
     return this.salesService.create(createSaleDto);
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll() {
     return this.salesService.findAll();
   }
 
   @Get(':id')
+  @UseGuards(JwtAuthGuard)
   async findOne(@Param('id') id: string) {
     const sale = this.salesService.findOne(id);
     if (!sale) throw new NotFoundException();
@@ -25,6 +32,7 @@ export class SalesController {
   }
 
   @Patch(':id')
+  @UseGuards(JwtAuthGuard)
   async update(
     @Param('id') id: string,
     @Body() updateSaleDto: UpdateSaleDto
@@ -35,6 +43,7 @@ export class SalesController {
   }
 
   @Delete(':id')
+  @UseGuards(JwtAuthGuard)
   @HttpCode(204)
   async remove(@Param('id') id: string) {
     const sale = await this.salesService.remove(id);

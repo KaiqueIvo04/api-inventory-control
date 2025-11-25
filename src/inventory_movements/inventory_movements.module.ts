@@ -6,7 +6,10 @@ import { InventoryMovement } from './entities/inventory_movement.entity';
 import { ProductsModule } from 'src/products/products.module';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([InventoryMovement]), ProductsModule],
+  imports: [
+    TypeOrmModule.forFeature([InventoryMovement]),
+    ProductsModule,
+  ],
   controllers: [InventoryMovementsController],
   providers: [InventoryMovementsService],
 })

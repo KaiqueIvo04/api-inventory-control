@@ -15,7 +15,6 @@ export class SalesService {
     @InjectRepository(Sale)
     private readonly saleRepository: Repository<Sale>,
     @InjectRepository(ItemOfSale)
-    private readonly itemOfSaleRepository: Repository<ItemOfSale>,
     private readonly productService: ProductsService,
     private readonly dataSource: DataSource
   ) { }

@@ -1,9 +1,11 @@
 ### List Products
 GET http://localhost:3000/products
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6ImFkbV8xenhXa2NrMURnTlM3M0JXX2xITjEiLCJpYXQiOjE3NjQwNzk5NjgsImV4cCI6MTc2NDA4MDAyOH0.BfuEkHaECBfa6bSjkBnq4OnZHxfWCLJYYiaOlGZLMuw
 
 ### Create product
 POST http://localhost:3000/products
 Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VybmFtZSI6ImFkbWluQGdtYWlsLmNvbSIsInN1YiI6ImFkbV8xenhXa2NrMURnTlM3M0JXX2xITjEiLCJpYXQiOjE3NjQwNzk5NjgsImV4cCI6MTc2NDA4MDAyOH0.BfuEkHaECBfa6bSjkBnq4OnZHxfWCLJYYiaOlGZLMuw
 
 {
     "name": "Batom",
