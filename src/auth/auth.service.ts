@@ -47,7 +47,7 @@ export class AuthService {
         const compareHash = (await scrypt(dto.password, salt, 32)) as Buffer;
 
         if (compareHash.toString('hex') !== hash) throw new UnauthorizedException("Invalid credentials!");
-        
+
         const payload = { username: user.email, sub: user.id }
 
         return { access_token: this.jwtService.sign(payload) };

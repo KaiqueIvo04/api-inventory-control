@@ -24,7 +24,7 @@ import { ConfigModule } from '@nestjs/config';
     InventoryMovementsModule,
     SalesModule,
     AuthModule,
-    ConfigModule.forRoot({ isGlobal: true })
+    ConfigModule.forRoot({ isGlobal: true }),
   ],
   controllers: [AppController],
   providers: [AppService],

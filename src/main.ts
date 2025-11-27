@@ -8,7 +8,11 @@ async function bootstrap() {
   if (existsSync(dbFileName)) unlinkSync(dbFileName);
 
   const app = await NestFactory.create(AppModule);
-
+  app.enableCors({
+    origin: '*',
+    credentials: true,
+  })
+  
   app.useGlobalPipes(
     new ValidationPipe({
       transform: true,
@@ -16,6 +20,6 @@ async function bootstrap() {
     }),
   );
 
-  await app.listen(process.env.PORT ?? 3000);
+  await app.listen(process.env.PORT ?? 8000);
 }
 bootstrap();
