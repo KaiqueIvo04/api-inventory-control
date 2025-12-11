@@ -15,6 +15,9 @@ export class Admin {
     @Column()
     password: string;
 
+    @Column()
+    type: string;
+
     @BeforeInsert()
     generateId() {
         this.id = `adm_${nanoid()}`

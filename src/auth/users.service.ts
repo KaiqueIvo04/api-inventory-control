@@ -11,6 +11,7 @@ export class UsersService {
         @InjectRepository(Admin) private readonly adminRepository: Repository<Admin>,
         private readonly jwtService: JwtService
     ) { }
+
     findAll() {
         return this.adminRepository.find();
     }
@@ -22,6 +23,7 @@ export class UsersService {
                 id: true,
                 name: true,
                 email: true,
+                type: true
             }
         })
     }

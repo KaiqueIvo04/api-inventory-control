@@ -28,7 +28,8 @@ export class AuthService {
         const newUser = {
             name: dto.name,
             email: dto.email,
-            password: saltAndHash
+            password: saltAndHash,
+            type: "admin"
         }
 
         const userCreated = this.adminRepository.create(newUser);
