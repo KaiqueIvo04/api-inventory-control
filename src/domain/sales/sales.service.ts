@@ -18,7 +18,7 @@ export class SalesService {
     private readonly dataSource: DataSource
   ) { }
 
-  async create(dto: CreateSaleDto) {
+  async create(dto: CreateSaleDto): Promise<Sale>  {
     // 1. Validar items
     if (!dto.items || dto.items.length === 0) {
       throw new BadRequestException('The sale must have at least 1 item!');
@@ -104,15 +104,15 @@ export class SalesService {
     });
   }
 
-  findAll(filter?: Filter, page?: number, limit?: number) {
+  findAll(filter?: Filter, page?: number, limit?: number): Promise<Sale[]> {
     return this.saleRepository.filterAllPaginated(filter, page, limit);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<Sale | null> {
     return this.saleRepository.findOne({ where: { id }, relations: ['items', 'items.product'] })
   }
 
-  async update(id: string, dto: UpdateSaleDto) {
+  async update(id: string, dto: UpdateSaleDto): Promise<Sale | null>  {
     // 1. Verificar se a venda a ser atualizada existe
     const sale = await this.saleRepository.findOne({
       where: { id },
@@ -208,7 +208,7 @@ export class SalesService {
     });
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<Sale | null>  {
     const sale = await this.saleRepository.findOneBy({ id });
     if (!sale) return;
     return await this.saleRepository.remove(sale);

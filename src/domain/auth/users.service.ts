@@ -1,4 +1,4 @@
-import { Injectable } from "@nestjs/common";
+import { ConflictException, Injectable } from "@nestjs/common";
 import { UpdateAdminDto } from "./dto/update-admin.dto";
 import { Admin } from "./entities/admin.entity";
 import { UsersRepository } from "./users.repository";
@@ -10,11 +10,16 @@ export class UsersService {
         private readonly adminRepository: UsersRepository,
     ) { }
 
-    async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Admin[], number]> {
+
+    async exists(filter: Filter): Promise<boolean> {
+        return await this.adminRepository.filterExists(filter);
+    }
+
+    async findAll(filter?: Filter, page?: number, limit?: number): Promise<Admin[]> {
         return await this.adminRepository.filterAllPaginated(filter, page, limit);
     }
 
-    async findOne(id: string) {
+    async findOne(id: string): Promise<Admin | null> {
         return await this.adminRepository.findOne({
             where: { id },
             select: {
@@ -26,14 +31,21 @@ export class UsersService {
         })
     }
 
-    async update(id: string, dto: UpdateAdminDto) {
+    async update(id: string, dto: UpdateAdminDto): Promise<Admin | null> {
         const admin = await this.adminRepository.findOneBy({ id });
         if (!admin) return;
+
+        if (dto.email && dto.email !== admin.email) {
+            const emailExists = await this.exists({ email: dto.email });
+            if (emailExists) {
+                throw new ConflictException(`An admin with that e-mail already exists!`);
+            }
+        }
         this.adminRepository.merge(admin, dto);
         return await this.adminRepository.save(admin);
     }
 
-    async remove(id: string) {
+    async remove(id: string): Promise<Admin | null> {
         const admin = await this.adminRepository.findOneBy({ id });
         if (!admin) return;
         return await this.adminRepository.remove(admin);

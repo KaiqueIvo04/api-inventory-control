@@ -33,13 +33,13 @@ export abstract class BaseRepository<
         filter: Filter | undefined,
         page = 1,
         limit = 10,
-    ): Promise<[T[], number]> {
+    ): Promise<T[]> {
         const skip = (page - 1) * limit;
 
         return this.getFilteredQueryBuilder(filter)
             .skip(skip)
             .take(limit)
-            .getManyAndCount();
+            .getMany();
     }
 
 

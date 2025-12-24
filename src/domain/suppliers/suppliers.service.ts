@@ -17,7 +17,7 @@ export class SuppliersService {
     return await this.supplierRepository.save(newSupplier);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Supplier[], number]> {
+  async findAll(filter?: Filter, page?: number, limit?: number): Promise<Supplier[]> {
     return await this.supplierRepository.filterAllPaginated(filter, page, limit);
   }
 
@@ -32,7 +32,7 @@ export class SuppliersService {
     return await this.supplierRepository.save(supplier);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<Supplier | null> {
     const supplier = await this.supplierRepository.findOneBy({ id });
     if (!supplier) return;
     return await this.supplierRepository.remove(supplier);

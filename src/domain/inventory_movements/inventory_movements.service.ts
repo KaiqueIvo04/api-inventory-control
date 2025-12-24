@@ -13,28 +13,28 @@ export class InventoryMovementsService {
     @Inject() private readonly productService: ProductsService
   ) { }
 
-  async create(dto: CreateInventoryMovementDto) {
+  async create(dto: CreateInventoryMovementDto): Promise<InventoryMovement> {
     const newInventoryMovement: InventoryMovement = this.movementRepository.create(dto);
 
     return await this.movementRepository.save(newInventoryMovement);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[InventoryMovement[], number]> {
+  async findAll(filter?: Filter, page?: number, limit?: number): Promise<InventoryMovement[]> {
     return await this.movementRepository.filterAllPaginated(filter, page, limit);
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<InventoryMovement | null> {
     return await this.movementRepository.findOneBy({ id })
   }
 
-  async update(id: string, dto: UpdateInventoryMovementDto) {
+  async update(id: string, dto: UpdateInventoryMovementDto): Promise<InventoryMovement | null> {
     const movement = await this.movementRepository.findOneBy({ id });
     if (!movement) return;
     this.movementRepository.merge(movement, dto);
     return await this.movementRepository.save(movement);
   }
 
-  async remove(id: string) {
+  async remove(id: string): Promise<InventoryMovement | null> {
     const movement = await this.movementRepository.findOneBy({ id });
     if (!movement) return;
     return await this.movementRepository.remove(movement);

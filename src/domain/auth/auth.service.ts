@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { AuthDto } from './dto/auth.dto';
@@ -19,7 +19,7 @@ export class AuthService {
 
     async signup(dto: CreateAdminDto) {
         const user = await this.adminRepository.findOneBy({ email: dto.email });
-        if (user) throw new BadRequestException("An admin with that e-mail already exists!");
+        if (user) throw new ConflictException("An admin with that e-mail already exists!");
 
         const salt = randomBytes(8).toString('hex');
         const hash = await scrypt(dto.password, salt, 32) as Buffer;

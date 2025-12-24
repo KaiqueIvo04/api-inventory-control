@@ -16,7 +16,7 @@ export class ProductsService {
     return await this.productRepository.save(newProduct);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Product[], number]> {
+  async findAll(filter?: Filter, page?: number, limit?: number): Promise<Product[]> {
     return await this.productRepository.filterAllPaginated(filter, page, limit);
   }
 
@@ -24,14 +24,14 @@ export class ProductsService {
     return await this.productRepository.filterOne(filter);
   }
 
-  async update(id: string, dto: UpdateProductDto): Promise<Product> {
+  async update(id: string, dto: UpdateProductDto): Promise<Product | null> {
     const product = await this.productRepository.findOneBy({ id });
     if (!product) return;
     this.productRepository.merge(product, dto);
     return await this.productRepository.save(product);
   }
 
-  async remove(id: string): Promise<Product> {
+  async remove(id: string): Promise<Product | null> {
     const product = await this.productRepository.findOneBy({ id });
     if (!product) return;
     return await this.productRepository.remove(product);
