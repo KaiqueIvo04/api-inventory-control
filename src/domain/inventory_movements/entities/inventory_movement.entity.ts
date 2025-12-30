@@ -33,11 +33,18 @@ export class InventoryMovement {
     @Column({ type: 'text', nullable: true })
     observation: string;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
 
     @BeforeInsert()
     generateId() {

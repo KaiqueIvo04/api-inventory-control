@@ -1,5 +1,5 @@
 import { nanoid } from "nanoid";
-import { BeforeInsert, Column, Entity, PrimaryColumn } from "typeorm";
+import { BeforeInsert, Column, CreateDateColumn, Entity, PrimaryColumn, UpdateDateColumn } from "typeorm";
 
 @Entity()
 export class Admin {
@@ -17,6 +17,19 @@ export class Admin {
 
     @Column()
     type: string;
+
+    @CreateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
+
+    @UpdateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
 
     @BeforeInsert()
     generateId() {

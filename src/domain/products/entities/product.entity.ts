@@ -8,6 +8,9 @@ export class Product {
     @PrimaryColumn()
     id: string;
 
+    @Column({ type: 'text', nullable: true })
+    image_base64: string;
+
     @Column()
     name: string;
 
@@ -24,20 +27,28 @@ export class Product {
     @Column({ nullable: true })
     supplier_id: string;
 
-    @Column()
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     cost: number;
 
-    @Column()
+    @Column({ type: 'decimal', precision: 10, scale: 2 })
     price: number;
+
 
     @Column()
     inventory_quantity: number;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
 
     @BeforeInsert()
     generateId() {

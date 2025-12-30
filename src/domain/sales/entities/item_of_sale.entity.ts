@@ -22,7 +22,7 @@ export class ItemOfSale {
 
     @Column()
     product_id: string;
-    
+
     // Armazena informações do produto no momento da venda
     // (caso o produto seja alterado depois)
     @Column({ nullable: true })
@@ -34,11 +34,18 @@ export class ItemOfSale {
     @Column({ type: 'decimal', precision: 10, scale: 2 })
     unit_price: number;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
 
     @BeforeInsert()
     generateId() {

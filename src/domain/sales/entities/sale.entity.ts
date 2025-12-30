@@ -17,7 +17,7 @@ export class Sale {
     @OneToMany(() => ItemOfSale, (item) => item.sale)
     items: ItemOfSale[];
 
-    @Column({ type: 'datetime', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
     date_sale: Date;
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -32,11 +32,18 @@ export class Sale {
     @Column()
     discount: number;
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
 
     @BeforeInsert()
     generateId() {

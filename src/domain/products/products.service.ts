@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { In } from 'typeorm';
@@ -11,6 +11,19 @@ export class ProductsService {
   constructor(private readonly productRepository: ProductsRepository) { }
 
   async create(dto: CreateProductDto): Promise<Product> {
+    if (dto.image_base64) {
+      const sizeInBytes = Buffer.byteLength(dto.image_base64, 'utf8');
+      const maxSize = 4 * 1024 * 1024; // 1MB
+
+      if (sizeInBytes > maxSize) {
+        throw new BadRequestException('Image exceeds 4MB!');
+      }
+      const valid = dto.image_base64.startsWith('data:image/');
+      if (!valid) {
+        throw new BadRequestException('Invalid image format!');
+      }
+    }
+
     const newProduct: Product = this.productRepository.create(dto);
 
     return await this.productRepository.save(newProduct);

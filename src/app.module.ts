@@ -7,19 +7,26 @@ import { SuppliersModule } from './domain/suppliers/suppliers.module';
 import { InventoryMovementsModule } from './domain/inventory_movements/inventory_movements.module';
 import { SalesModule } from './domain/sales/sales.module';
 import { AuthModule } from './domain/auth/auth.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { LoggerModule } from 'nestjs-pino';
 import { CustomLogger } from './custom.logger';
 
 @Module({
   imports: [
-    TypeOrmModule.forRoot({
-      type: 'sqlite',
-      database: 'inventoryControl.sqlite',
-      entities: [__dirname + '/**/*.entity{.ts,.js'],
-      autoLoadEntities: true,
-      synchronize: true, // Uses only development environment,
-      logging: true,
+    ConfigModule.forRoot({
+      isGlobal: true
+    }),
+    TypeOrmModule.forRootAsync({
+      imports: [ConfigModule],
+      inject: [ConfigService],
+      useFactory: (configService: ConfigService) => ({
+        type: 'postgres',
+        url: configService.get<string>('DB_URL'),
+        entities: [__dirname + '/**/*.entity{.ts,.js'],
+        autoLoadEntities: true,
+        synchronize: configService.get<string>('NODE_ENV') === 'development',
+        logging: configService.get<string>('NODE_ENV') === 'development',
+      })
     }),
     ProductsModule,
     SuppliersModule,
@@ -27,9 +34,10 @@ import { CustomLogger } from './custom.logger';
     SalesModule,
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
-    LoggerModule.forRoot()  ],
+    LoggerModule.forRoot()
+  ],
   controllers: [AppController],
   exports: [CustomLogger],
   providers: [AppService, CustomLogger],
 })
-export class AppModule {}
+export class AppModule { }
