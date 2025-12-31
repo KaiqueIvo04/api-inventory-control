@@ -20,6 +20,7 @@ export class CreateProductDto {
 
     @IsString()
     @IsNotEmpty()
+    @MaxLength(500)
     description: string;
 
     @IsString()
