@@ -29,7 +29,7 @@ export class ProductsService {
     return await this.productRepository.save(newProduct);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<Product[]> {
+  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Product[], number]> {
     return await this.productRepository.filterAllPaginated(filter, page, limit);
   }
 

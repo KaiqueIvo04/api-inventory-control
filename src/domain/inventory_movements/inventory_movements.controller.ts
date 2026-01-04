@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, UseGuards, Query, UseInterceptors } from '@nestjs/common';
 import { InventoryMovementsService } from './inventory_movements.service';
 import { CreateInventoryMovementDto } from './dto/create-inventory_movement.dto';
 import { UpdateInventoryMovementDto } from './dto/update-inventory_movement.dto';
 import { JwtAuthGuard } from 'src/domain/auth/jwt-auth.guard';
 import { Filter } from 'src/shared/apply-filters';
+import { TotalCountInterceptor } from 'src/shared/interceptors/total-count.interceptor';
 
 @Controller('inventory-movements')
 export class InventoryMovementsController {
@@ -20,6 +21,7 @@ export class InventoryMovementsController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(TotalCountInterceptor)
   findAll(
     @Query('filter') filter?: Filter,
     @Query('page') page?: number,

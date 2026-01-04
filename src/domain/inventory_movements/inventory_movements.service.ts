@@ -19,7 +19,7 @@ export class InventoryMovementsService {
     return await this.movementRepository.save(newInventoryMovement);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<InventoryMovement[]> {
+  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[InventoryMovement[], number]> {
     return await this.movementRepository.filterAllPaginated(filter, page, limit);
   }
 

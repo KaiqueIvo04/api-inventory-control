@@ -15,7 +15,7 @@ export class UsersService {
         return await this.adminRepository.filterExists(filter);
     }
 
-    async findAll(filter?: Filter, page?: number, limit?: number): Promise<Admin[]> {
+    async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Admin[], number]> {
         return await this.adminRepository.filterAllPaginated(filter, page, limit);
     }
 

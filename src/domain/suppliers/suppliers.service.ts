@@ -17,7 +17,7 @@ export class SuppliersService {
     return await this.supplierRepository.save(newSupplier);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<Supplier[]> {
+  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Supplier[], number]> {
     return await this.supplierRepository.filterAllPaginated(filter, page, limit);
   }
 

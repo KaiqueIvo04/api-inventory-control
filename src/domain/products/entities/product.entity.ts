@@ -27,12 +27,27 @@ export class Product {
     @Column({ nullable: true })
     supplier_id: string;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ 
+        type: 'decimal', 
+        precision: 10, 
+        scale: 2,
+        transformer: {
+            to: (value: number) => value,
+            from: (value: string) => parseFloat(value)
+        }
+    })
     cost: number;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({ 
+        type: 'decimal', 
+        precision: 10, 
+        scale: 2,
+        transformer: {
+            to: (value: number) => value,
+            from: (value: string) => parseFloat(value)
+        }
+    })
     price: number;
-
 
     @Column()
     inventory_quantity: number;

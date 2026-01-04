@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, UseGuards, Query, UseInterceptors } from '@nestjs/common';
 import { SalesService } from './sales.service';
 import { CreateSaleDto } from './dto/create-sale.dto';
 import { UpdateSaleDto } from './dto/update-sale.dto';
 import { JwtAuthGuard } from 'src/domain/auth/jwt-auth.guard';
 import { Filter } from 'src/shared/apply-filters';
+import { TotalCountInterceptor } from 'src/shared/interceptors/total-count.interceptor';
 
 @Controller('sales')
 export class SalesController {
@@ -20,6 +21,7 @@ export class SalesController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(TotalCountInterceptor)
   findAll(
     @Query('filter') filter?: Filter,
     @Query('page') page?: number,

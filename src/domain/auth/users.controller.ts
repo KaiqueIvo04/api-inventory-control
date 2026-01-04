@@ -1,8 +1,9 @@
-import { Body, Controller, Delete, Get, HttpCode, Inject, NotFoundException, Param, Patch, Query, UseGuards } from "@nestjs/common";
+import { Body, Controller, Delete, Get, HttpCode, Inject, NotFoundException, Param, Patch, Query, UseGuards, UseInterceptors } from "@nestjs/common";
 import { JwtAuthGuard } from "./jwt-auth.guard";
 import { UsersService } from "./users.service";
 import { UpdateAdminDto } from "./dto/update-admin.dto";
 import { Filter } from "src/shared/apply-filters";
+import { TotalCountInterceptor } from "src/shared/interceptors/total-count.interceptor";
 
 @Controller("users")
 export class UsersController {
@@ -12,6 +13,7 @@ export class UsersController {
 
     @Get()
     @UseGuards(JwtAuthGuard)
+    @UseInterceptors(TotalCountInterceptor)
     findAll(
         @Query('filter') filter?: Filter,
         @Query('page') page?: number,

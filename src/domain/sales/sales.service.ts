@@ -104,7 +104,7 @@ export class SalesService {
     });
   }
 
-  findAll(filter?: Filter, page?: number, limit?: number): Promise<Sale[]> {
+  findAll(filter?: Filter, page?: number, limit?: number): Promise<[Sale[], number]> {
     return this.saleRepository.filterAllPaginated(filter, page, limit);
   }
 

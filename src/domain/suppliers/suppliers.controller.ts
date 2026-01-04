@@ -1,9 +1,10 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, UseGuards, Query } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, NotFoundException, HttpCode, UseGuards, Query, UseInterceptors } from '@nestjs/common';
 import { SuppliersService } from './suppliers.service';
 import { CreateSupplierDto } from './dto/create-supplier.dto';
 import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { JwtAuthGuard } from 'src/domain/auth/jwt-auth.guard';
 import { Filter } from 'src/shared/apply-filters';
+import { TotalCountInterceptor } from 'src/shared/interceptors/total-count.interceptor';
 
 @Controller('suppliers')
 export class SuppliersController {
@@ -20,6 +21,7 @@ export class SuppliersController {
 
   @Get()
   @UseGuards(JwtAuthGuard)
+  @UseInterceptors(TotalCountInterceptor)
   findAll(
     @Query('filter') filter?: Filter,
     @Query('page') page?: number,
