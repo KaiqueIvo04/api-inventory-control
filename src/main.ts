@@ -7,7 +7,7 @@ import { json, urlencoded } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: ['http://localhost:3000', process.env.FRONT_URL],
+    origin: [process.env.FRONT_URL, 'http://localhost', 'http://localhost:80'], // ← MUDANÇA AQUI
     credentials: true,
   });
 
@@ -22,6 +22,6 @@ async function bootstrap() {
   app.use(urlencoded({ extended: true, limit: '3mb' }));
   app.useLogger(app.get(CustomLogger));
 
-  await app.listen(process.env.PORT ?? 8000,);
+  await app.listen(process.env.PORT ?? 8000);
 }
 bootstrap();

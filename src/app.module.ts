@@ -14,7 +14,7 @@ import { CustomLogger } from './custom.logger';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true
+      isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
@@ -26,7 +26,7 @@ import { CustomLogger } from './custom.logger';
         autoLoadEntities: true,
         synchronize: configService.get<string>('NODE_ENV') === 'development',
         logging: configService.get<string>('NODE_ENV') === 'development',
-      })
+      }),
     }),
     ProductsModule,
     SuppliersModule,
@@ -34,10 +34,10 @@ import { CustomLogger } from './custom.logger';
     SalesModule,
     AuthModule,
     ConfigModule.forRoot({ isGlobal: true }),
-    LoggerModule.forRoot()
+    LoggerModule.forRoot(),
   ],
   controllers: [AppController],
   exports: [CustomLogger],
   providers: [AppService, CustomLogger],
 })
-export class AppModule { }
+export class AppModule {}
