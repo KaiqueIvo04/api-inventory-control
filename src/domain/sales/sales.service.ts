@@ -1,239 +1,169 @@
-import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { CreateSaleDto } from './dto/create-sale.dto';
-import { UpdateSaleDto } from './dto/update-sale.dto';
 import { Sale } from './entities/sale.entity';
 import { DataSource } from 'typeorm';
 import { ItemOfSale } from './entities/item_of_sale.entity';
 import { Product } from 'src/domain/products/entities/product.entity';
 import { ProductsService } from 'src/domain/products/products.service';
-import { Filter } from 'src/shared/apply-filters';
+import { InventoryMovement, MovementType } from '../inventory_movements/entities/inventory_movement.entity';
 import { SalesRepository } from './sales.repository';
+import { Filter } from 'src/shared/apply-filters';
 
 @Injectable()
 export class SalesService {
-
   constructor(
     private readonly saleRepository: SalesRepository,
     private readonly productService: ProductsService,
     private readonly dataSource: DataSource
   ) { }
 
-  async create(dto: CreateSaleDto): Promise<Sale>  {
-    // 1. Validar items
+  async create(dto: CreateSaleDto): Promise<Sale> {
     if (!dto.items || dto.items.length === 0) {
       throw new BadRequestException('The sale must have at least 1 item!');
     }
 
-    const productIds = dto.items.map(item => item.product_id);
+    const productIds = dto.items.map(i => i.product_id);
     const products = await this.productService.findByIds(productIds);
 
     if (products.length !== productIds.length) {
       throw new NotFoundException('One or more products were not found!');
     }
 
-    // 1.1 Validar disponibilidade de estoque
-    for (const itemDto of dto.items) {
-      const product = products.find(p => p.id === itemDto.product_id);
-
-      if (itemDto.quantity > product!.inventory_quantity) {
-        throw new BadRequestException(
-          `Insufficient stock for "${product!.name}". ` +
-          `Available: ${product!.inventory_quantity}, Requested: ${itemDto.quantity}`
-        );
+    return this.dataSource.transaction(async manager => {
+      // 1. Validar estoque
+      for (const item of dto.items) {
+        const product = products.find(p => p.id === item.product_id)!;
+        if (item.quantity > product.inventory_quantity) {
+          throw new BadRequestException(
+            `Insufficient stock for ${product.name}!`
+          );
+        }
       }
-    }
 
-    // 2. Criar venda e items de venda com segurança (transaction)
-    return await this.dataSource.transaction(async (manager) => {
-
-      // 2.1. Calcular e validar o total da venda
-      const subtotal = dto.items.reduce((sum, itemDto) => {
-        const product = products.find(p => p.id === itemDto.product_id);
-        return sum + (itemDto.quantity * product!.price);
+      // 2. Calcular total
+      const subtotal = dto.items.reduce((sum, item) => {
+        const product = products.find(p => p.id === item.product_id)!;
+        return sum + product.price * item.quantity;
       }, 0);
+
+      if (dto.discount && dto.discount > subtotal) {
+        throw new BadRequestException('Discount exceeds subtotal!');
+      }
 
       const total = subtotal - (dto.discount || 0);
 
-      // Validação: Desconto não pode ser maior que o subtotal
-      if (dto.discount && dto.discount > subtotal) {
-        throw new BadRequestException(
-          `Discount (R$ ${dto.discount}) cannot exceed subtotal (R$ ${subtotal})!`
-        );
-      }
-
-      // Validação: Total não pode ser negativo
-      if (total < 0) {
-        throw new BadRequestException('Sale total cannot be negative!');
-      }
-
-      // 2.2. Criar a venda 
-      const newSale = manager.create(Sale, {
+      // 3. Criar venda
+      const sale = manager.create(Sale, {
         name_client: dto.name_client,
         payment_method: dto.payment_method,
-        total_value: total,  // Total já descontado
-        discount: dto.discount, // Apenas para informar quanto já foi descontado
-        date_sale: new Date()
+        discount: dto.discount || 0,
+        total_value: total,
+        date_sale: new Date(),
       });
 
-      const savedSale = await manager.save(Sale, newSale);
+      const savedSale = await manager.save(Sale, sale);
 
-      // 2.3. Criar os itens da venda
-      const itemsToSave = dto.items.map(itemDto => {
-        const product = products.find(p => p.id === itemDto.product_id);
-
-        return manager.create(ItemOfSale, {
-          sale_id: savedSale.id,
-          product_id: itemDto.product_id,
-          quantity: itemDto.quantity,
-          unit_price: product?.price,
-          product_name_snapshot: product?.name
-        });
-      });
-
-      await manager.save(ItemOfSale, itemsToSave);
-
-      // 2.4. Atualizar estoque dos produtos vendidos
+      // 4. Criar itens + movimentações + atualizar estoque
       for (const item of dto.items) {
-        await this.updateProductInventory(item.product_id, -item.quantity, manager);
+        const product = products.find(p => p.id === item.product_id)!;
+
+        // Item da venda
+        await manager.save(
+          manager.create(ItemOfSale, {
+            sale_id: savedSale.id,
+            product_id: product.id,
+            quantity: item.quantity,
+            unit_price: product.price,
+            product_name_snapshot: product.name,
+          })
+        );
+
+        // Atualizar estoque
+        product.inventory_quantity -= item.quantity;
+        if (product.inventory_quantity < 0) throw new BadRequestException(`Insufficient stock for ${product.name}!`)
+        await manager.save(Product, product);
+
+        // Criar movimentação SELL
+        await manager.save(
+          manager.create(InventoryMovement, {
+            product_id: product.id,
+            type: MovementType.SELL,
+            quantity: item.quantity,
+            date_movement: new Date(),
+            observation: `Venda: ${savedSale.id}`,
+            sale_id: savedSale.id,
+          })
+        );
       }
 
       return this.saleRepository.findOne({
         where: { id: savedSale.id },
-        relations: ['items', 'items.product']
+        relations: ['items', 'items.product'],
       });
     });
   }
 
-  findAll(filter?: Filter, page?: number, limit?: number): Promise<[Sale[], number]> {
+  findAll(filter?: Filter, page?: number, limit?: number) {
     return this.saleRepository.filterAllPaginated(filter, page, limit);
   }
 
-  async findOne(id: string): Promise<Sale | null> {
-    return this.saleRepository.findOne({ where: { id }, relations: ['items', 'items.product'] })
+  findOne(id: string) {
+    return this.saleRepository.findOne({
+      where: { id },
+      relations: ['items', 'items.product'],
+    });
   }
 
-  async update(id: string, dto: UpdateSaleDto): Promise<Sale | null>  {
-    // 1. Verificar se a venda a ser atualizada existe
-    const sale = await this.saleRepository.findOne({
-      where: { id },
-      relations: ['items']
-    });
+  async remove(id: string): Promise<Sale> {
+    return this.dataSource.transaction(async manager => {
+      const sale = await manager.findOne(Sale, {
+        where: { id },
+        relations: ['items'],
+      });
 
-    if (!sale) throw new NotFoundException(`Venda ${id} não encontrada`);
-
-    // 2. Atualizar venda e itens
-    return await this.dataSource.transaction(async (manager) => {
-      if (dto.items && dto.items.length > 0) {
-
-        // 2.1. Se tiver atualização de itens: Verificar se os itens passados existem
-        const productIds = dto.items.map(item => item.product_id);
-        const products = await this.productService.findByIds(productIds);
-
-        if (products.length !== productIds.length) {
-          throw new NotFoundException('One or more products were not found!');
-        }
-
-        // 2.2. Se tiver atualização de itens: Devolver estoque dos itens antigos e deletar do banco de dados
-        for (const oldItem of sale.items) {
-          await this.updateProductInventory(
-            oldItem.product_id,
-            oldItem.quantity,
-            manager
-          );
-
-          await manager.remove(ItemOfSale, oldItem);
-        }
-
-        // 2.4. Se tiver atualização de itens: Calcular novo total
-        const subtotal = dto.items.reduce((sum, itemDto) => {
-          const product = products.find(p => p.id === itemDto.product_id);
-          return sum + (itemDto.quantity * product!.price);
-        }, 0);
-
-        const total = subtotal - (dto.discount || 0);
-
-        // 2.5. Se tiver atualização de itens: Atualizar dados da venda
-        manager.merge(Sale, sale, {
-          name_client: dto.name_client ?? sale.name_client,
-          payment_method: dto.payment_method ?? sale.payment_method,
-          discount: dto.discount ?? sale.discount,
-          total_value: total
-        });
-
-        await manager.save(Sale, sale);
-
-        // 2.6. Se tiver atualização de itens: Criar novos itens
-        const newItems = dto.items.map(itemDto => {
-          const product = products.find(p => p.id === itemDto.product_id);
-
-          return manager.create(ItemOfSale, {
-            sale_id: sale.id,
-            product_id: itemDto.product_id,
-            quantity: itemDto.quantity,
-            unit_price: product?.price,
-            product_name_snapshot: product?.name
-          });
-        });
-
-        await manager.save(ItemOfSale, newItems);
-
-        // 2.7. Se tiver atualização de itens: Descontar estoque dos novos itens
-        for (const item of dto.items) {
-          await this.updateProductInventory(item.product_id, -item.quantity, manager);
-        }
-      } else {
-        // 2.1. Atualiza apenas dados da venda
-        if (dto.discount) {
-          const subtotal = sale.total_value + sale.discount
-          if (dto.discount > subtotal) {
-            throw new BadRequestException(
-              `Discount (R$ ${dto.discount}) cannot exceed subtotal (R$ ${subtotal})!`
-            );
-          }
-
-          const total = subtotal - dto.discount;
-          manager.merge(Sale, sale, { ...dto, total_value: total });
-        } else {
-          manager.merge(Sale, sale, dto);
-        }
-
-        await manager.save(Sale, sale);
+      if (!sale) {
+        throw new NotFoundException(`Sale with id ${id} not found`);
       }
 
-      // Retorna venda atualizada com itens
-      return this.saleRepository.findOne({
-        where: { id: sale.id },
-        relations: ['items', 'items.product']
-      });
+      for (const item of sale.items) {
+        const product = await manager.findOne(Product, {
+          where: { id: item.product_id },
+        });
+
+        if (product) {
+          // Produto ainda existe → repõe estoque
+          await manager.increment(
+            Product,
+            { id: product.id },
+            'inventory_quantity',
+            item.quantity
+          );
+        }
+
+        // Sempre registra a movimentação
+        await manager.save(
+          manager.create(InventoryMovement, {
+            product_id: item.product_id,
+            type: MovementType.ADJUST,
+            quantity: item.quantity,
+            date_movement: new Date(),
+            observation: product
+              ? `Estorno da venda ${sale.id}`
+              : `Estorno da venda ${sale.id} (produto removido)`,
+            sale_id: sale.id,
+          })
+        );
+      }
+
+      await manager.delete(ItemOfSale, { sale_id: sale.id });
+      await manager.remove(Sale, sale);
+
+      return sale;
     });
   }
 
-  async remove(id: string): Promise<Sale | null>  {
-    const sale = await this.saleRepository.findOneBy({ id });
-    if (!sale) return;
-    return await this.saleRepository.remove(sale);
-  }
-
-  // HELPERS
-  private async updateProductInventory(
-    productId: string,
-    quantityChange: number,
-    manager: any
-  ) {
-    const product = await this.productService.findOne(productId);
-
-    if (!product) {
-      throw new NotFoundException(`Update inventory: product with id ${productId} not found!`);
-    }
-
-    product.inventory_quantity += quantityChange;
-
-    if (product.inventory_quantity < 0) {
-      throw new BadRequestException(
-        `Insufficient inventory quantities for the product ${product.name}!`
-      );
-    }
-
-    await manager.save(Product, product);
-  }
 }

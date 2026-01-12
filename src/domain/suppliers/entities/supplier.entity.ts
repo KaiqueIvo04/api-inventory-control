@@ -10,7 +10,7 @@ export class Supplier {
     @Column()
     name: string;
 
-    @Column({ nullable: true })
+    @Column({ nullable: true, unique: true })
     cnpj: string
 
     @Column({ nullable: true })
@@ -22,11 +22,18 @@ export class Supplier {
     @Column({ type: 'text', nullable: true })
     address: string
 
-    @CreateDateColumn()
-    created_at: Date;
+    @CreateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
+    createdAt: Date;
 
-    @UpdateDateColumn()
-    updated_at: Date;
+    @UpdateDateColumn({
+        type: 'timestamp with time zone',
+        default: () => 'CURRENT_TIMESTAMP',
+        onUpdate: 'CURRENT_TIMESTAMP',
+    })
+    updatedAt: Date;
 
     @BeforeInsert()
     generateId() {

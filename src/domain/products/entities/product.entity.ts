@@ -49,7 +49,7 @@ export class Product {
     })
     price: number;
 
-    @Column()
+    @Column({ default: 0 })
     inventory_quantity: number;
 
     @CreateDateColumn({

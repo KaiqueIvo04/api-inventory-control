@@ -4,7 +4,6 @@ import {
     IsOptional,
     IsNumber,
     Min,
-    IsInt,
     MaxLength,
 } from 'class-validator';
 
@@ -38,9 +37,4 @@ export class CreateProductDto {
     @IsNumber()
     @Min(0)
     price: number;
-
-    @IsInt()
-    @Min(0)
-    inventory_quantity: number;
-
 }

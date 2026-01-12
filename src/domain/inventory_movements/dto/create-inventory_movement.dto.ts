@@ -1,4 +1,4 @@
-import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, MaxLength } from "class-validator";
+import { IsDateString, IsEnum, IsNumber, IsOptional, IsString, MaxLength, Min } from "class-validator";
 import { MovementType } from "../entities/inventory_movement.entity";
 
 export class CreateInventoryMovementDto {
@@ -10,6 +10,7 @@ export class CreateInventoryMovementDto {
     type: MovementType;
 
     @IsNumber()
+    @Min(0)
     quantity: number;
 
     @IsDateString()

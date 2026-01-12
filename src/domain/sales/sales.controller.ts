@@ -38,17 +38,6 @@ export class SalesController {
     return sale;
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  async update(
-    @Param('id') id: string,
-    @Body() updateSaleDto: UpdateSaleDto
-  ) {
-    const sale = await this.salesService.update(id, updateSaleDto);
-    if (!sale) throw new NotFoundException();
-    return sale;
-  }
-
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
   @HttpCode(204)

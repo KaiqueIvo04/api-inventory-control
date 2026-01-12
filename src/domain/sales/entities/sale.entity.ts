@@ -17,7 +17,7 @@ export class Sale {
     @OneToMany(() => ItemOfSale, (item) => item.sale)
     items: ItemOfSale[];
 
-    @Column({ type: 'date', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     date_sale: Date;
 
     @Column({ type: 'decimal', precision: 10, scale: 2 })
@@ -26,10 +26,10 @@ export class Sale {
     @Column({ enum: PaymentMethod })
     payment_method: PaymentMethod;
 
-    @Column({ nullable: true })
+    @Column()
     name_client: string;
 
-    @Column()
+    @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2, default: 0 })
     discount: number;
 
     @CreateDateColumn({

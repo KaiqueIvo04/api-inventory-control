@@ -14,20 +14,23 @@ export class InventoryMovement {
     @PrimaryColumn()
     id: string;
 
-    @ManyToOne(() => Product, { onDelete: 'SET NULL' })
+    @ManyToOne(() => Product, { onDelete: 'SET NULL', eager: true })
     @JoinColumn({ name: 'product_id' })
     product: Product;
 
     @Column()
     product_id: string;
 
-    @Column({ enum: MovementType })
+    @Column({ nullable: true })
+    sale_id?: string;
+
+    @Column({ type: 'enum', enum: MovementType })
     type: MovementType;
 
     @Column()
     quantity: number;
 
-    @Column({ type: 'date' })
+    @Column({ type: 'timestamp' })
     date_movement: Date;
 
     @Column({ type: 'text', nullable: true })

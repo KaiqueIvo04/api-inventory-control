@@ -1,0 +1,21 @@
+services:
+  postgres:
+    image: postgres:13
+    container_name: inventory-control-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_DB: inventorycontroldb
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - inventory-control-network
+
+volumes:
+  postgres_data:
+
+networks:
+  inventory-control-network:
+    driver: bridge

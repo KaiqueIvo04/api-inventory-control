@@ -7,7 +7,7 @@ import { json, urlencoded } from 'express';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.enableCors({
-    origin: [process.env.FRONT_URL, 'http://localhost', 'http://localhost:80'], // ← MUDANÇA AQUI
+    origin: [process.env.FRONT_URL, 'http://localhost:3000'],
     credentials: true,
   });
 

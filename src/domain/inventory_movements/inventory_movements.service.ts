@@ -1,22 +1,63 @@
-import { Inject, Injectable} from '@nestjs/common';
+import { BadRequestException, Inject, Injectable, NotFoundException } from '@nestjs/common';
 import { CreateInventoryMovementDto } from './dto/create-inventory_movement.dto';
-import { UpdateInventoryMovementDto } from './dto/update-inventory_movement.dto';
-import { InventoryMovement } from './entities/inventory_movement.entity';
+import { InventoryMovement, MovementType } from './entities/inventory_movement.entity';
 import { ProductsService } from 'src/domain/products/products.service';
 import { InventoryMovementsRepository } from './inventory_movements.repository';
 import { Filter } from 'src/shared/apply-filters';
+import { DataSource } from 'typeorm';
+import { Product } from '../products/entities/product.entity';
 
 @Injectable()
 export class InventoryMovementsService {
   constructor(
     private readonly movementRepository: InventoryMovementsRepository,
-    @Inject() private readonly productService: ProductsService
+    @Inject() private readonly productService: ProductsService,
+    private readonly dataSource: DataSource
   ) { }
 
   async create(dto: CreateInventoryMovementDto): Promise<InventoryMovement> {
-    const newInventoryMovement: InventoryMovement = this.movementRepository.create(dto);
+    const product = await this.productService.findOne(dto.product_id);
+    if (!product) {
+      throw new NotFoundException(`Update inventory: product with id ${dto.product_id} not found!`);
+    }
 
-    return await this.movementRepository.save(newInventoryMovement);
+    switch (dto.type) {
+      case MovementType.SELL:
+        if (dto.type === MovementType.SELL) {
+          throw new BadRequestException(
+            'SELL movements must be created via sales endpoint.'
+          );
+        }
+        break;
+
+      case MovementType.ADJUST:
+        if (!dto.observation) {
+          throw new BadRequestException("Adjusts needs observation!");
+        }
+
+        const oldQuantity = product.inventory_quantity;
+        product.inventory_quantity = dto.quantity;
+        dto.quantity = dto.quantity - oldQuantity;
+        break;
+
+      case MovementType.BUY:
+        if (dto.quantity === 0) throw new BadRequestException("The quantity of product must be greater than 0!");
+        product.inventory_quantity += dto.quantity;
+        break;
+
+    }
+
+    if (product.inventory_quantity < 0) {
+      throw new BadRequestException(
+        `Insufficient inventory quantities for the product ${product.name}!`
+      );
+    }
+
+    return await this.dataSource.transaction(async (manager) => {
+      await manager.save(Product, product);
+      const newMovement = manager.create(InventoryMovement, dto);
+      return manager.save(InventoryMovement, newMovement);
+    })
   }
 
   async findAll(filter?: Filter, page?: number, limit?: number): Promise<[InventoryMovement[], number]> {
@@ -27,40 +68,9 @@ export class InventoryMovementsService {
     return await this.movementRepository.findOneBy({ id })
   }
 
-  async update(id: string, dto: UpdateInventoryMovementDto): Promise<InventoryMovement | null> {
-    const movement = await this.movementRepository.findOneBy({ id });
-    if (!movement) return;
-    this.movementRepository.merge(movement, dto);
-    return await this.movementRepository.save(movement);
-  }
-
   async remove(id: string): Promise<InventoryMovement | null> {
     const movement = await this.movementRepository.findOneBy({ id });
     if (!movement) return;
     return await this.movementRepository.remove(movement);
   }
-
-  // // HELPERS
-  // private async updateProductInventory(
-  //   productId: string,
-  //   quantityChange: number,
-  //   manager: any
-  // ) {
-  //   const product = await this.productService.findOne(productId);
-
-  //   if (!product) {
-  //     throw new NotFoundException(`Update inventory: product with id ${productId} not found!`);
-  //   }
-
-  //   product.inventory_quantity += quantityChange;
-
-  //   if (product.inventory_quantity < 0) {
-  //     throw new BadRequestException(
-  //       `Insufficient inventory quantities for the product ${product.name}!`
-  //     );
-  //   }
-
-  //   await manager.save(Product, product);
-  // }
-
 }

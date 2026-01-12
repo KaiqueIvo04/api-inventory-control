@@ -38,16 +38,16 @@ export class InventoryMovementsController {
     return movement;
   }
 
-  @Patch(':id')
-  @UseGuards(JwtAuthGuard)
-  async update(
-    @Param('id') id: string,
-    @Body() updateInventoryMovementDto: UpdateInventoryMovementDto
-  ) {
-    const movement = await this.inventoryMovementsService.update(id, updateInventoryMovementDto);
-    if (!movement) throw new NotFoundException()
-    return movement;
-  }
+  // @Patch(':id')
+  // @UseGuards(JwtAuthGuard)
+  // async update(
+  //   @Param('id') id: string,
+  //   @Body() updateInventoryMovementDto: UpdateInventoryMovementDto
+  // ) {
+  //   const movement = await this.inventoryMovementsService.update(id, updateInventoryMovementDto);
+  //   if (!movement) throw new NotFoundException()
+  //   return movement;
+  // }
 
   @Delete(':id')
   @UseGuards(JwtAuthGuard)
