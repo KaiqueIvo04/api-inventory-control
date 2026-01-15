@@ -53,13 +53,13 @@ export class Product {
     inventory_quantity: number;
 
     @CreateDateColumn({
-        type: 'timestamp with time zone',
+        type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
     })
     createdAt: Date;
 
     @UpdateDateColumn({
-        type: 'timestamp with time zone',
+        type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
         onUpdate: 'CURRENT_TIMESTAMP',
     })

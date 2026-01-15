@@ -20,7 +20,15 @@ export class Sale {
     @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
     date_sale: Date;
 
-    @Column({ type: 'decimal', precision: 10, scale: 2 })
+    @Column({
+        type: 'decimal',
+        precision: 10,
+        scale: 2,
+        transformer: {
+            to: (value: number) => value,
+            from: (value: string) => parseFloat(value)
+        }
+    })
     total_value: number;
 
     @Column({ enum: PaymentMethod })
@@ -33,13 +41,13 @@ export class Sale {
     discount: number;
 
     @CreateDateColumn({
-        type: 'timestamp with time zone',
+        type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
     })
     createdAt: Date;
 
     @UpdateDateColumn({
-        type: 'timestamp with time zone',
+        type: 'timestamp',
         default: () => 'CURRENT_TIMESTAMP',
         onUpdate: 'CURRENT_TIMESTAMP',
     })
