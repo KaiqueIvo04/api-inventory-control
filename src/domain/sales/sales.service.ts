@@ -12,6 +12,7 @@ import { ProductsService } from 'src/domain/products/products.service';
 import { InventoryMovement, MovementType } from '../inventory_movements/entities/inventory_movement.entity';
 import { SalesRepository } from './sales.repository';
 import { Filter } from 'src/shared/apply-filters';
+import { Sort } from 'src/shared/sort';
 
 @Injectable()
 export class SalesService {
@@ -107,8 +108,8 @@ export class SalesService {
     });
   }
 
-  findAll(filter?: Filter, page?: number, limit?: number) {
-    return this.saleRepository.filterAllPaginated(filter, page, limit);
+  findAll(filter?: Filter, page?: number, limit?: number, sort?: Sort): Promise<[Sale[], number]> {
+    return this.saleRepository.filterAllPaginated(filter, page, limit, sort);
   }
 
   findOne(id: string) {

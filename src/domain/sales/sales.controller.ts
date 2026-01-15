@@ -5,6 +5,7 @@ import { UpdateSaleDto } from './dto/update-sale.dto';
 import { JwtAuthGuard } from 'src/domain/auth/jwt-auth.guard';
 import { Filter } from 'src/shared/apply-filters';
 import { TotalCountInterceptor } from 'src/shared/interceptors/total-count.interceptor';
+import { Sort } from 'src/shared/sort';
 
 @Controller('sales')
 export class SalesController {
@@ -26,8 +27,9 @@ export class SalesController {
     @Query('filter') filter?: Filter,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('sort') sort?: Sort,
   ) {
-    return this.salesService.findAll(filter, page, limit);
+    return this.salesService.findAll(filter, page, limit, sort);
   }
 
   @Get(':id')

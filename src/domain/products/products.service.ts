@@ -5,6 +5,7 @@ import { In } from 'typeorm';
 import { Product } from './entities/product.entity';
 import { ProductsRepository } from './products.repository';
 import { Filter } from 'src/shared/apply-filters';
+import { Sort } from 'src/shared/sort';
 
 @Injectable()
 export class ProductsService {
@@ -29,8 +30,8 @@ export class ProductsService {
     return await this.productRepository.save(newProduct);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Product[], number]> {
-    return await this.productRepository.filterAllPaginated(filter, page, limit);
+  async findAll(filter?: Filter, page?: number, limit?: number, sort?: Sort): Promise<[Product[], number]> {
+    return await this.productRepository.filterAllPaginated(filter, page, limit, sort);
   }
 
   async findOne(filter: Filter): Promise<Product | null> {

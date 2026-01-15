@@ -4,6 +4,7 @@ import { UsersService } from "./users.service";
 import { UpdateAdminDto } from "./dto/update-admin.dto";
 import { Filter } from "src/shared/apply-filters";
 import { TotalCountInterceptor } from "src/shared/interceptors/total-count.interceptor";
+import { Sort } from "src/shared/sort";
 
 @Controller("users")
 export class UsersController {
@@ -18,8 +19,9 @@ export class UsersController {
         @Query('filter') filter?: Filter,
         @Query('page') page?: number,
         @Query('limit') limit?: number,
+        @Query('sort') sort?: Sort
     ) {
-        return this.usersService.findAll(filter, page, limit);
+        return this.usersService.findAll(filter, page, limit, sort);
     }
 
     @Get(':id')

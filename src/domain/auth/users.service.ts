@@ -3,6 +3,7 @@ import { UpdateAdminDto } from "./dto/update-admin.dto";
 import { Admin } from "./entities/admin.entity";
 import { UsersRepository } from "./users.repository";
 import { Filter } from "src/shared/apply-filters";
+import { Sort } from "src/shared/sort";
 
 @Injectable()
 export class UsersService {
@@ -15,8 +16,8 @@ export class UsersService {
         return await this.adminRepository.filterExists(filter);
     }
 
-    async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Admin[], number]> {
-        return await this.adminRepository.filterAllPaginated(filter, page, limit);
+    async findAll(filter?: Filter, page?: number, limit?: number, sort?: Sort): Promise<[Admin[], number]> {
+        return await this.adminRepository.filterAllPaginated(filter, page, limit, sort);
     }
 
     async findOne(id: string): Promise<Admin | null> {

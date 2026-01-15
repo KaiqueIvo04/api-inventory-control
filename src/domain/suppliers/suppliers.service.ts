@@ -4,6 +4,7 @@ import { UpdateSupplierDto } from './dto/update-supplier.dto';
 import { Supplier } from './entities/supplier.entity';
 import { Filter } from 'src/shared/apply-filters';
 import { SuppliersRepository } from './suppliers.repository';
+import { Sort } from 'src/shared/sort';
 
 @Injectable()
 export class SuppliersService {
@@ -19,8 +20,8 @@ export class SuppliersService {
     return await this.supplierRepository.save(newSupplier);
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[Supplier[], number]> {
-    return await this.supplierRepository.filterAllPaginated(filter, page, limit);
+  async findAll(filter?: Filter, page?: number, limit?: number, sort?: Sort): Promise<[Supplier[], number]> {
+    return await this.supplierRepository.filterAllPaginated(filter, page, limit, sort);
   }
 
   async findOne(filter: Filter): Promise<Supplier | null> {

@@ -6,6 +6,7 @@ import { InventoryMovementsRepository } from './inventory_movements.repository';
 import { Filter } from 'src/shared/apply-filters';
 import { DataSource } from 'typeorm';
 import { Product } from '../products/entities/product.entity';
+import { Sort } from 'src/shared/sort';
 
 @Injectable()
 export class InventoryMovementsService {
@@ -60,8 +61,8 @@ export class InventoryMovementsService {
     })
   }
 
-  async findAll(filter?: Filter, page?: number, limit?: number): Promise<[InventoryMovement[], number]> {
-    return await this.movementRepository.filterAllPaginated(filter, page, limit);
+  async findAll(filter?: Filter, page?: number, limit?: number, sort?: Sort): Promise<[InventoryMovement[], number]> {
+    return await this.movementRepository.filterAllPaginated(filter, page, limit, sort);
   }
 
   async findOne(id: string): Promise<InventoryMovement | null> {

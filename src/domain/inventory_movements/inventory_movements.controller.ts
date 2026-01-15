@@ -5,6 +5,7 @@ import { UpdateInventoryMovementDto } from './dto/update-inventory_movement.dto'
 import { JwtAuthGuard } from 'src/domain/auth/jwt-auth.guard';
 import { Filter } from 'src/shared/apply-filters';
 import { TotalCountInterceptor } from 'src/shared/interceptors/total-count.interceptor';
+import { Sort } from 'src/shared/sort';
 
 @Controller('inventory-movements')
 export class InventoryMovementsController {
@@ -26,8 +27,9 @@ export class InventoryMovementsController {
     @Query('filter') filter?: Filter,
     @Query('page') page?: number,
     @Query('limit') limit?: number,
+    @Query('sort') sort?: Sort
   ) {
-    return this.inventoryMovementsService.findAll(filter, page, limit);
+    return this.inventoryMovementsService.findAll(filter, page, limit, sort);
   }
 
   @Get(':id')
