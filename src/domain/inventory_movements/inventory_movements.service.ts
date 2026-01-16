@@ -24,25 +24,25 @@ export class InventoryMovementsService {
 
     switch (dto.type) {
       case MovementType.SELL:
-        if (dto.type === MovementType.SELL) {
-          throw new BadRequestException(
-            'SELL movements must be created via sales endpoint.'
-          );
-        }
-        break;
+        throw new BadRequestException(
+          'SELL movements must be created via sales endpoint.'
+        );
 
       case MovementType.ADJUST:
         if (!dto.observation) {
-          throw new BadRequestException("Adjusts needs observation!");
+          throw new BadRequestException('Adjustments require an observation.');
         }
 
         const oldQuantity = product.inventory_quantity;
-        product.inventory_quantity = dto.quantity;
-        dto.quantity = dto.quantity - oldQuantity;
+        const finalQuantity = dto.quantity;
+        const diff = finalQuantity - oldQuantity;
+
+        product.inventory_quantity = finalQuantity;
+        dto.quantity = diff; // movimento registra a diferença
         break;
 
       case MovementType.BUY:
-        if (dto.quantity === 0) throw new BadRequestException("The quantity of product must be greater than 0!");
+        if (dto.quantity <= 0) throw new BadRequestException("The quantity of product must be greater than 0!");
         product.inventory_quantity += dto.quantity;
         break;
 
@@ -67,11 +67,5 @@ export class InventoryMovementsService {
 
   async findOne(id: string): Promise<InventoryMovement | null> {
     return await this.movementRepository.findOneBy({ id })
-  }
-
-  async remove(id: string): Promise<InventoryMovement | null> {
-    const movement = await this.movementRepository.findOneBy({ id });
-    if (!movement) return;
-    return await this.movementRepository.remove(movement);
   }
 }

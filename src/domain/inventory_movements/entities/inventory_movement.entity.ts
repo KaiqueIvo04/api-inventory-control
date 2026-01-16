@@ -30,22 +30,26 @@ export class InventoryMovement {
     @Column()
     quantity: number;
 
-    @Column({ type: 'timestamp' })
+    @Column({
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP',
+    })
     date_movement: Date;
 
     @Column({ type: 'text', nullable: true })
     observation: string;
 
     @CreateDateColumn({
-        type: 'timestamp',
+        type: 'timestamptz',
         default: () => 'CURRENT_TIMESTAMP',
     })
     createdAt: Date;
 
     @UpdateDateColumn({
-        type: 'timestamp',
+        type: 'timestamptz',
         default: () => 'CURRENT_TIMESTAMP',
         onUpdate: 'CURRENT_TIMESTAMP',
+
     })
     updatedAt: Date;
 

@@ -23,13 +23,13 @@ export class Supplier {
     address: string
 
     @CreateDateColumn({
-        type: 'timestamp',
+        type: 'timestamptz',
         default: () => 'CURRENT_TIMESTAMP',
     })
     createdAt: Date;
 
     @UpdateDateColumn({
-        type: 'timestamp',
+        type: 'timestamptz',
         default: () => 'CURRENT_TIMESTAMP',
         onUpdate: 'CURRENT_TIMESTAMP',
     })

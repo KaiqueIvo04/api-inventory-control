@@ -10,7 +10,6 @@ export class CreateInventoryMovementDto {
     type: MovementType;
 
     @IsNumber()
-    @Min(0)
     quantity: number;
 
     @IsDateString()

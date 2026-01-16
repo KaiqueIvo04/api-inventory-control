@@ -14,10 +14,13 @@ export class Sale {
     @PrimaryColumn()
     id: string;
 
-    @OneToMany(() => ItemOfSale, (item) => item.sale)
+    @OneToMany(() => ItemOfSale, (item) => item.sale, { eager: true })
     items: ItemOfSale[];
 
-    @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
+    @Column({
+        type: 'timestamptz',
+        default: () => 'CURRENT_TIMESTAMP'
+    })
     date_sale: Date;
 
     @Column({
@@ -37,17 +40,22 @@ export class Sale {
     @Column()
     name_client: string;
 
-    @Column({ nullable: true, type: 'decimal', precision: 10, scale: 2, default: 0 })
+    @Column({
+        type: 'decimal', precision: 10, scale: 2, default: 0, transformer: {
+            to: (value: number) => value,
+            from: (value: string) => parseFloat(value)
+        }
+    })
     discount: number;
 
     @CreateDateColumn({
-        type: 'timestamp',
+        type: 'timestamptz',
         default: () => 'CURRENT_TIMESTAMP',
     })
     createdAt: Date;
 
     @UpdateDateColumn({
-        type: 'timestamp',
+        type: 'timestamptz',
         default: () => 'CURRENT_TIMESTAMP',
         onUpdate: 'CURRENT_TIMESTAMP',
     })
